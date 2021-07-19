@@ -1,14 +1,26 @@
 #! https://discord.com/api/oauth2/authorize?client_id=835149234122129418&permissions=3406912&scope=bot
-import json
+from dotenv import load_dotenv
 import random
 import re
+import os
 
 import discord
 
 import reddit_helper
 
-token_json = json.load(open("tokens.txt"))
-reddit_scraper = reddit_helper.RedditScraper(token_json)
+load_dotenv()
+
+discord_bot_token = os.getenv("discord_bot_token")
+reddit_id = os.getenv("reddit_id")
+reddit_secret = os.getenv("reddit_secret")
+reddit_username = os.getenv("reddit_username")
+reddit_password = os.getenv("reddit_password")
+
+if reddit_id is not None \
+        and reddit_secret is not None \
+        and reddit_username is not None \
+        and reddit_password is not None:
+    reddit_scraper = reddit_helper.RedditScraper(reddit_id, reddit_secret, reddit_username, reddit_password)
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
@@ -162,4 +174,7 @@ async def on_message(message):
 
 
 if __name__ == "__main__":
-    client.run(token_json["discord_bot_token"])
+    if discord_bot_token is not None:
+        client.run(discord_bot_token)
+    else:
+        print("Olen Omena")

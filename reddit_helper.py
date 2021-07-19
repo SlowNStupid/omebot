@@ -18,12 +18,12 @@ async def get_pictures_from_subreddit(subreddit):
 
 
 class RedditScraper:
-    def __init__(self, token_json: json):
-        self.reddit = asyncpraw.Reddit(client_id=token_json["reddit_id"],
-                                       client_secret=token_json["reddit_secret"],
+    def __init__(self, reddit_id, reddit_secret, reddit_username, reddit_password):
+        self.reddit = asyncpraw.Reddit(client_id=reddit_id,
+                                       client_secret=reddit_secret,
                                        user_agent="OmeBot",
-                                       username=token_json["reddit_username"],
-                                       password=token_json["reddit_password"])
+                                       username=reddit_username,
+                                       password=reddit_password)
 
     async def get_nsfw_pics(self):
         nsfw_sub = (await self.reddit.subreddit("nsfw+NSFW_GIF")).hot(limit=500)
