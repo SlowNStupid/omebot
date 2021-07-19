@@ -1,13 +1,12 @@
 #! https://discord.com/api/oauth2/authorize?client_id=835149234122129418&permissions=3406912&scope=bot
-from dotenv import load_dotenv
 import random
 import re
 import os
 
 import discord
-
 import reddit_helper
 
+from dotenv import load_dotenv
 load_dotenv()
 
 discord_bot_token = os.getenv("discord_bot_token")
