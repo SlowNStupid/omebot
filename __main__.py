@@ -22,7 +22,7 @@ def get_members(message):
     target_users = []
     msg = message.content
     match = re.search("\\s<@.(.+)>", msg)
-    if msg == "ome.sendfood":
+    if msg == "ome.sendfood" or msg == "ome.sendnude":
         target_users.append(message.author)
     if match is not None:
         mention_id = int(match.group(1))
@@ -98,8 +98,7 @@ async def on_message(message):
                                 inline=True)
             await message.channel.send(embed=cmd_embed)
         elif msg == "ome.clean":
-            message_list = []
-            async for cur_msg in message.channel.history(limit=200):
+            async for cur_msg in message.channel.history(limit=500):
                 if cur_msg.author == client.user \
                         or cur_msg.content.startswith("ome.") \
                         or cur_msg.content == "ome":
@@ -107,9 +106,7 @@ async def on_message(message):
                         if cur_msg.author == client.user:
                             await cur_msg.delete()
                     else:
-                        message_list.append(cur_msg)
-            if len(message_list) > 0:
-                await message.channel.delete_messages(message_list)
+                        await cur_msg.delete()
         elif msg.startswith("ome.sendfood"):
             target_users = []
             if msg == "ome.sendfood":
@@ -150,16 +147,14 @@ async def on_message(message):
                             content=message.author.mention + "...You need help...")
                     elif freq_users[message.author.id] > 75:
                         await message.channel.send(
-                            content=message.author.mention + ", I see you're about to do a breakthrough in being dirty,"
-                                                             " requesting nudes over 75 times ;)")
+                            content=message.author.mention + ", please just stop...")
                     elif freq_users[message.author.id] > 50:
                         await message.channel.send(
-                            content=message.author.mention + ", I see you're a real-deal pervert,"
-                                                             " requesting nudes over 50 times ;)")
+                            content=message.author.mention + ", stop requesting me to post nudes! I'm tired of "
+                                                             "hunting down those nudes!")
                     elif freq_users[message.author.id] > 25:
                         await message.channel.send(
-                            content=message.author.mention + ", I see you're not like any other perverts,"
-                                                             " requesting nudes over 25 times ;)")
+                            content=message.author.mention + ", you know that pornhub exists, right?")
                     elif freq_users[message.author.id] > 10:
                         await message.channel.send(
                             content=message.author.mention + ", I see you're a pervert,"
