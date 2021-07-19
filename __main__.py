@@ -175,5 +175,3 @@ async def on_message(message):
 if __name__ == "__main__":
     if discord_bot_token is not None:
         client.run(discord_bot_token)
-    else:
-        print("Olen Omena")
