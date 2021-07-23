@@ -26,9 +26,9 @@ class RedditScraper:
                                        password=reddit_password)
 
     async def get_nsfw_pics(self):
-        nsfw_sub = (await self.reddit.subreddit("nsfw+NSFW_GIF")).hot(limit=500)
+        nsfw_sub = (await self.reddit.subreddit("nsfw+NSFW_GIF")).hot(limit=250)
         return await get_pictures_from_subreddit(nsfw_sub)
 
     async def get_food_pics(self):
-        food_porn_sub = (await self.reddit.subreddit("FoodPorn")).hot(limit=500)
+        food_porn_sub = (await self.reddit.subreddit("FoodPorn")).hot(limit=250)
         return await get_pictures_from_subreddit(food_porn_sub)
