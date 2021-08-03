@@ -138,7 +138,7 @@ async def on_message(message):
                     target_users.append(message.author)
                 else:
                     target_users = get_members(message)
-                    await send_picture_in_dm(target_users,
+                await send_picture_in_dm(target_users,
                                          message.author,
                                          "Nude courtesy of ",
                                          "Nude courtesy of yourself??? You need some help...\n",
