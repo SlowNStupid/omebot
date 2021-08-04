@@ -32,7 +32,7 @@ nsfw_pics = []
 def get_members(message):
     target_users = []
     msg = message.content
-    match = re.search("\\s<@!*(.+)>", msg)
+    match = re.search("\\s<@[!&]*(.+)>", msg)
     print(msg)
     if msg == "ome.sendfood" or msg == "ome.sendnude":
         target_users.append(message.author)
