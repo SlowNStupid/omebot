@@ -154,7 +154,7 @@ async def on_message(message):
                 else:
                     freq_users[message.author.id] = freq_users[message.author.id] + 1
 
-                if random.randint(1, 10 + 1) >= 9:
+                if random.randint(1, 10 + 1) >= 10:
                     if freq_users[message.author.id] > 100:
                         await message.channel.send(
                             content=message.author.mention + "...You need help...")
@@ -170,8 +170,7 @@ async def on_message(message):
                             content=message.author.mention + ", you know that pornhub exists, right?")
                     elif freq_users[message.author.id] > 10:
                         await message.channel.send(
-                            content=message.author.mention + ", I see you're a pervert,"
-                                                             " requesting nudes over 10 times ;)")
+                            content=message.author.mention + ", I see you're a pervert ;)")
 
 
 if __name__ == "__main__":
