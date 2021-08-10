@@ -154,7 +154,7 @@ async def on_message(message):
                 else:
                     freq_users[message.author.id] = freq_users[message.author.id] + 1
 
-                if random.randint(1, 10 + 1) >= 10:
+                if random.randint(1, 100) >= 95:
                     if freq_users[message.author.id] > 100:
                         await message.channel.send(
                             content=message.author.mention + "...You need help...")
