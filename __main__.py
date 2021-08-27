@@ -3,10 +3,12 @@ import random
 import re
 import os
 
+import asyncprawcore.exceptions
 import discord
 import reddit_helper
 
 from dotenv import load_dotenv
+
 load_dotenv()
 
 discord_bot_token = os.getenv("discord_bot_token")
@@ -28,16 +30,17 @@ freq_users = {}
 food_pics = []
 nsfw_pics = []
 
+food_pics_enabled = True
+nsfw_pics_enabled = True
+
 
 def get_members(message):
     target_users = []
     msg = message.content
     match = re.search("\\s<@[!&]*(.+)>", msg)
-    print(msg)
     if msg == "ome.sendfood" or msg == "ome.sendnude":
         target_users.append(message.author)
-    if match is not None:
-        print(match.group(1))
+    if match:
         mention_id = int(match.group(1))
         target_user = message.guild.get_member(mention_id)
         if target_user is not None:
@@ -50,13 +53,21 @@ def get_members(message):
     return target_users
 
 
-async def send_picture_in_dm(target_users, author, message_to_others, message_to_self, picture):
+async def send_picture_in_dm(target_users,
+                             author=None,
+                             msg_to_others="",
+                             msg_to_self="",
+                             picture="",
+                             is_secret=False,
+                             secret_msg=""):
     for target_user in target_users:
         dm_channel = await target_user.create_dm()
         if target_user == author:
-            await dm_channel.send(content=message_to_self + picture.pop())
+            await dm_channel.send(content=msg_to_self + picture.pop())
+        elif is_secret:
+            await dm_channel.send(content=secret_msg + picture.pop())
         else:
-            await dm_channel.send(content=message_to_others + author.display_name + "\n" + picture.pop())
+            await dm_channel.send(content=msg_to_others + author.display_name + "\n" + picture.pop())
 
 
 @client.event
@@ -66,16 +77,34 @@ async def on_message(message):
 
     if message.content.startswith("ome"):
         global nsfw_pics
-        if len(nsfw_pics) < 1:
-            nsfw_pics = await reddit_scraper.get_nsfw_pics()
-            random.shuffle(nsfw_pics)
+        global nsfw_pics_enabled
+
+        secret_msg = False
+
+        try:
+            if len(nsfw_pics) < 1:
+                nsfw_pics = await reddit_scraper.get_nsfw_pics()
+                random.shuffle(nsfw_pics)
+                nsfw_pics_enabled = True
+        except asyncprawcore.exceptions.Forbidden:
+            nsfw_pics_enabled = False
 
         global food_pics
-        if len(food_pics) < 1:
-            food_pics = await reddit_scraper.get_food_pics()
-            random.shuffle(food_pics)
+        global food_pics_enabled
+        try:
+            if len(food_pics) < 1:
+                food_pics = await reddit_scraper.get_food_pics()
+                random.shuffle(food_pics)
+                food_pics_enabled = True
+        except asyncprawcore.exceptions.Forbidden:
+            food_pics_enabled = False
 
         msg = message.content
+        match = re.search("\\s(?:<@[!&]*.+>\\s)*(secret)", msg.lower())
+        if match:
+            secret_msg = True
+            msg = msg.replace(match.group(1), "").strip()
+
         if msg == "ome":
             await message.channel.send("Olen Omena!")
         elif msg.startswith("ome.help"):
@@ -90,24 +119,28 @@ async def on_message(message):
                                 value="------------------------------------------------------------------------------",
                                 inline=False)
 
-            cmd_embed.add_field(name="ome.food",
-                                value="Request bot to post food picture to the channel",
+            cmd_embed.add_field(name="ome.food *secret*",
+                                value="Request bot to post food picture to the channel,"
+                                      " optionally include \"secret\" to request anonymously",
                                 inline=True)
-            cmd_embed.add_field(name="ome.sendfood <mention>",
+            cmd_embed.add_field(name="ome.sendfood <mention> *secret*",
                                 value="Request bot to send food porn to yourself or to other "
-                                      "(mention a person or role after the command)",
+                                      "(mention a person or role after the command), "
+                                      "optionally include \"secret\" to send anonymously",
                                 inline=True)
 
             cmd_embed.add_field(name="--------------------------------------------------------------------------------",
                                 value="------------------------------------------------------------------------------",
                                 inline=False)
 
-            cmd_embed.add_field(name="ome.nsfw",
-                                value="Request bot to post porn picture to the channel",
+            cmd_embed.add_field(name="ome.nsfw *secret*",
+                                value="Request bot to post porn picture to the channel, "
+                                      "optionally include \"secret\" to request anonymously",
                                 inline=True)
-            cmd_embed.add_field(name="ome.sendnude <mention>",
+            cmd_embed.add_field(name="ome.sendnude <mention> *secret*",
                                 value="Request bot to send porn to yourself or to other "
-                                      "(mention a person or role after the command)",
+                                      "(mention a person or role after the command), "
+                                      "optionally include \"secret\" to send anonymously",
                                 inline=True)
             await message.channel.send(embed=cmd_embed)
         elif msg == "ome.clean":
@@ -121,32 +154,60 @@ async def on_message(message):
                     else:
                         await cur_msg.delete()
         elif msg.startswith("ome.sendfood"):
+            if not food_pics_enabled:
+                await message.channel.send(content="Food pics are not enabled (most likely "
+                                                   "acquiring pictures is not possible atm)")
+                return
+
             target_users = []
             if msg == "ome.sendfood":
                 target_users.append(message.author)
             else:
                 target_users = get_members(message)
-            await send_picture_in_dm(target_users,
-                                     message.author,
-                                     "Food courtesy of ",
-                                     "Food courtesy of yourself??? Get a job, you lazy ass...\n",
-                                     food_pics)
+
+            if secret_msg:
+                await send_picture_in_dm(target_users, picture=food_pics, is_secret=True,
+                                         secret_msg="Food courtesy of your secret admirer =P\n")
+                await message.delete()
+            else:
+                await send_picture_in_dm(target_users, message.author, "Food courtesy of ",
+                                         "Food courtesy of yourself??? Get a job, you lazy ass...\n", food_pics)
+
         elif msg == "ome.food":
+            if not food_pics_enabled:
+                await message.channel.send(content="Food pics are not enabled (most likely "
+                                                   "acquiring pictures is not possible atm)")
+                return
+
             await message.channel.send(content=food_pics.pop())
-        elif message.channel.is_nsfw():
-            if msg.startswith("ome.sendnude"):
-                target_users = []
-                if msg == "ome.sendnude":
-                    target_users.append(message.author)
-                else:
-                    target_users = get_members(message)
-                await send_picture_in_dm(target_users,
-                                         message.author,
-                                         "Nude courtesy of ",
-                                         "Nude courtesy of yourself??? You need some help...\n",
-                                         nsfw_pics)
-            elif msg == "ome.nsfw":
-                await message.channel.send(content=nsfw_pics.pop())
+            if secret_msg:
+                await message.delete()
+        elif msg.startswith("ome.sendnude"):
+            if not message.channel.is_nsfw():
+                await message.channel.send(content="This commands needs to be run from NSFW channel")
+                return
+
+            target_users = []
+            if msg == "ome.sendnude":
+                target_users.append(message.author)
+            else:
+                target_users = get_members(message)
+            if secret_msg:
+                await send_picture_in_dm(target_users, picture=nsfw_pics, is_secret=True,
+                                         secret_msg="Nude courtesy of your secret admirer =P\n")
+                await message.delete()
+            else:
+                await send_picture_in_dm(target_users, message.author, "Nude courtesy of ",
+                                         "Nude courtesy of yourself??? You need some help...\n", nsfw_pics)
+        elif msg == "ome.nsfw":
+            if message.channel.type == discord.ChannelType.text and not message.channel.is_nsfw():
+                await message.channel.send(content="This commands needs to be run from NSFW channel")
+                return
+
+            await message.channel.send(content=nsfw_pics.pop())
+
+            if secret_msg:
+                await message.delete()
 
             if type(message.channel) == discord.TextChannel:
                 if message.author.id not in freq_users:
@@ -154,7 +215,7 @@ async def on_message(message):
                 else:
                     freq_users[message.author.id] = freq_users[message.author.id] + 1
 
-                if random.randint(1, 100) >= 95:
+                if random.randint(1, 100) >= 95 and not secret_msg:
                     if freq_users[message.author.id] > 100:
                         await message.channel.send(
                             content=message.author.mention + "...You need help...")
