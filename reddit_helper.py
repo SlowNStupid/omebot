@@ -11,6 +11,7 @@ async def get_pictures_from_subreddit(subreddit):
                 or submission.url.endswith(".jpeg") \
                 or submission.url.endswith(".png") \
                 or submission.url.endswith(".webp") \
+                or submission.url.endswith(".webm") \
                 or submission.url.endswith(".gif") \
                 or submission.url.endswith(".gifv"):
             result.append(submission.url)
@@ -26,7 +27,11 @@ class RedditScraper:
                                        password=reddit_password)
 
     async def get_nsfw_pics(self):
-        nsfw_sub = (await self.reddit.subreddit("nsfw+NSFW_GIF")).hot(limit=250)
+        nsfw_sub = (await self.reddit.subreddit("NSFW_GIF")).hot(limit=500)
+        return await get_pictures_from_subreddit(nsfw_sub)
+
+    async def get_dong_pics(self):
+        nsfw_sub = (await self.reddit.subreddit("ladybonersgw")).hot(limit=500)
         return await get_pictures_from_subreddit(nsfw_sub)
 
     async def get_food_pics(self):

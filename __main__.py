@@ -29,16 +29,18 @@ client = discord.Client(intents=intents)
 freq_users = {}
 food_pics = []
 nsfw_pics = []
+dong_pics = []
 
 food_pics_enabled = True
 nsfw_pics_enabled = True
+dong_pics_enabled = True
 
 
 def get_members(message):
     target_users = []
     msg = message.content
     match = re.search("\\s<@[!&]*(.+)>", msg)
-    if msg == "ome.sendfood" or msg == "ome.sendnude":
+    if msg == "ome.sendfood" or msg == "ome.sendnude" or msg == "ome.senddong":
         target_users.append(message.author)
     if match:
         mention_id = int(match.group(1))
@@ -134,14 +136,29 @@ async def on_message(message):
                                 inline=False)
 
             cmd_embed.add_field(name="ome.nsfw *secret*",
-                                value="Request bot to post porn picture to the channel, "
+                                value="Request bot to post a porn picture to the channel, "
                                       "optionally include \"secret\" to request anonymously",
                                 inline=True)
             cmd_embed.add_field(name="ome.sendnude <mention> *secret*",
-                                value="Request bot to send porn to yourself or to other "
+                                value="Request bot to send a porn picture to yourself or to other "
                                       "(mention a person or role after the command), "
                                       "optionally include \"secret\" to send anonymously",
                                 inline=True)
+
+            cmd_embed.add_field(name="--------------------------------------------------------------------------------",
+                                value="------------------------------------------------------------------------------",
+                                inline=False)
+
+            cmd_embed.add_field(name="ome.dong *secret*",
+                                value="Request bot to post a dong picture to the channel, "
+                                      "optionally include \"secret\" to request anonymously",
+                                inline=True)
+            cmd_embed.add_field(name="ome.senddong <mention> *secret*",
+                                value="Request bot to send a dong picture to yourself or to other "
+                                      "(mention a person or role after the command), "
+                                      "optionally include \"secret\" to send anonymously",
+                                inline=True)
+
             await message.channel.send(embed=cmd_embed)
         elif msg == "ome.clean":
             async for cur_msg in message.channel.history(limit=500):
@@ -172,7 +189,6 @@ async def on_message(message):
             else:
                 await send_picture_in_dm(target_users, message.author, "Food courtesy of ",
                                          "Food courtesy of yourself??? Get a job, you lazy ass...\n", food_pics)
-
         elif msg == "ome.food":
             if not food_pics_enabled:
                 await message.channel.send(content="Food pics are not enabled (most likely "
@@ -182,34 +198,45 @@ async def on_message(message):
             await message.channel.send(content=food_pics.pop())
             if secret_msg:
                 await message.delete()
-        elif msg.startswith("ome.sendnude"):
-            if not message.channel.is_nsfw():
-                await message.channel.send(content="This commands needs to be run from NSFW channel")
-                return
+        elif message.channel.is_nsfw():
+            if msg.startswith("ome.sendnude"):
+                target_users = []
+                if msg == "ome.sendnude":
+                    target_users.append(message.author)
+                else:
+                    target_users = get_members(message)
+                if secret_msg:
+                    await send_picture_in_dm(target_users, picture=nsfw_pics, is_secret=True,
+                                             secret_msg="Nude courtesy of your secret admirer =P\n")
+                    await message.delete()
+                else:
+                    await send_picture_in_dm(target_users, message.author, "Nude courtesy of ",
+                                             "Nude courtesy of yourself??? You need some help...\n", nsfw_pics)
+            elif msg == "ome.nsfw":
+                await message.channel.send(content=nsfw_pics.pop())
 
-            target_users = []
-            if msg == "ome.sendnude":
-                target_users.append(message.author)
-            else:
-                target_users = get_members(message)
-            if secret_msg:
-                await send_picture_in_dm(target_users, picture=nsfw_pics, is_secret=True,
-                                         secret_msg="Nude courtesy of your secret admirer =P\n")
-                await message.delete()
-            else:
-                await send_picture_in_dm(target_users, message.author, "Nude courtesy of ",
-                                         "Nude courtesy of yourself??? You need some help...\n", nsfw_pics)
-        elif msg == "ome.nsfw":
-            if message.channel.type == discord.ChannelType.text and not message.channel.is_nsfw():
-                await message.channel.send(content="This commands needs to be run from NSFW channel")
-                return
+                if secret_msg:
+                    await message.delete()
+            elif msg.startswith("ome.senddong"):
+                target_users = []
+                if msg == "ome.sendnude":
+                    target_users.append(message.author)
+                else:
+                    target_users = get_members(message)
+                if secret_msg:
+                    await send_picture_in_dm(target_users, picture=nsfw_pics, is_secret=True,
+                                             secret_msg="Dong courtesy of your secret admirer =P\n")
+                    await message.delete()
+                else:
+                    await send_picture_in_dm(target_users, message.author, "Nude courtesy of ",
+                                             "Dong courtesy of yourself??? You need some help...\n", nsfw_pics)
+            elif msg == "ome.dong":
+                await message.channel.send(content=nsfw_pics.pop())
 
-            await message.channel.send(content=nsfw_pics.pop())
+                if secret_msg:
+                    await message.delete()
 
-            if secret_msg:
-                await message.delete()
-
-            if type(message.channel) == discord.TextChannel:
+            if type(message.channel) == discord.TextChannel and not secret_msg:
                 if message.author.id not in freq_users:
                     freq_users[message.author.id] = 1
                 else:
@@ -232,7 +259,9 @@ async def on_message(message):
                     elif freq_users[message.author.id] > 10:
                         await message.channel.send(
                             content=message.author.mention + ", I see you're a pervert ;)")
-
+        elif not message.channel.is_nsfw():
+            await message.channel.send(content="This commands needs to be run from NSFW channel")
+            return
 
 if __name__ == "__main__":
     if discord_bot_token is not None:
