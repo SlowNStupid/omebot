@@ -27,14 +27,13 @@ intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 
 freq_users = {}
-food_pics = []
 nsfw_pics = []
 dong_pics = []
+food_pics = []
 
-food_pics_enabled = True
 nsfw_pics_enabled = True
 dong_pics_enabled = True
-
+food_pics_enabled = True
 
 def get_members(message):
     target_users = []
@@ -78,18 +77,7 @@ async def on_message(message):
         return
 
     if message.content.startswith("ome"):
-        global nsfw_pics
-        global nsfw_pics_enabled
-
         secret_msg = False
-
-        try:
-            if len(nsfw_pics) < 1:
-                nsfw_pics = await reddit_scraper.get_nsfw_pics()
-                random.shuffle(nsfw_pics)
-                nsfw_pics_enabled = True
-        except asyncprawcore.exceptions.Forbidden:
-            nsfw_pics_enabled = False
 
         global food_pics
         global food_pics_enabled
@@ -100,6 +88,31 @@ async def on_message(message):
                 food_pics_enabled = True
         except asyncprawcore.exceptions.Forbidden:
             food_pics_enabled = False
+            del food_pics[:]
+
+        global nsfw_pics
+        global nsfw_pics_enabled
+
+        try:
+            if len(nsfw_pics) < 1:
+                nsfw_pics = await reddit_scraper.get_nsfw_pics()
+                random.shuffle(nsfw_pics)
+                nsfw_pics_enabled = True
+        except asyncprawcore.exceptions.Forbidden:
+            nsfw_pics_enabled = False
+            del nsfw_pics[:]
+
+        global dong_pics
+        global dong_pics_enabled
+
+        try:
+            if len(dong_pics) < 1:
+                dong_pics = await reddit_scraper.get_dong_pics()
+                random.shuffle(dong_pics)
+                dong_pics_enabled = True
+        except asyncprawcore.exceptions.Forbidden:
+            dong_pics_enabled = False
+            del dong_pics[:]
 
         msg = message.content
         match = re.search("\\s(?:<@[!&]*.+>\\s)*(secret)", msg.lower())
@@ -185,7 +198,6 @@ async def on_message(message):
             if secret_msg:
                 await send_picture_in_dm(target_users, picture=food_pics, is_secret=True,
                                          secret_msg="Food courtesy of your secret admirer =P\n")
-                await message.delete()
             else:
                 await send_picture_in_dm(target_users, message.author, "Food courtesy of ",
                                          "Food courtesy of yourself??? Get a job, you lazy ass...\n", food_pics)
@@ -196,10 +208,13 @@ async def on_message(message):
                 return
 
             await message.channel.send(content=food_pics.pop())
-            if secret_msg:
-                await message.delete()
         elif message.channel.is_nsfw():
             if msg.startswith("ome.sendnude"):
+                if not nsfw_pics_enabled:
+                    await message.channel.send(content="Nude pics are not enabled (most likely "
+                                                       "acquiring pictures is not possible atm)")
+                    return
+
                 target_users = []
                 if msg == "ome.sendnude":
                     target_users.append(message.author)
@@ -208,33 +223,40 @@ async def on_message(message):
                 if secret_msg:
                     await send_picture_in_dm(target_users, picture=nsfw_pics, is_secret=True,
                                              secret_msg="Nude courtesy of your secret admirer =P\n")
-                    await message.delete()
                 else:
                     await send_picture_in_dm(target_users, message.author, "Nude courtesy of ",
                                              "Nude courtesy of yourself??? You need some help...\n", nsfw_pics)
             elif msg == "ome.nsfw":
-                await message.channel.send(content=nsfw_pics.pop())
+                if not nsfw_pics_enabled:
+                    await message.channel.send(content="NSFW pics are not enabled (most likely "
+                                                       "acquiring pictures is not possible atm)")
+                    return
 
-                if secret_msg:
-                    await message.delete()
+                await message.channel.send(content=nsfw_pics.pop())
             elif msg.startswith("ome.senddong"):
+                if not dong_pics_enabled:
+                    await message.channel.send(content="Dong pics are not enabled (most likely "
+                                                       "acquiring pictures is not possible atm)")
+                    return
+
                 target_users = []
-                if msg == "ome.sendnude":
+                if msg == "ome.senddong":
                     target_users.append(message.author)
                 else:
                     target_users = get_members(message)
                 if secret_msg:
-                    await send_picture_in_dm(target_users, picture=nsfw_pics, is_secret=True,
+                    await send_picture_in_dm(target_users, picture=dong_pics, is_secret=True,
                                              secret_msg="Dong courtesy of your secret admirer =P\n")
-                    await message.delete()
                 else:
                     await send_picture_in_dm(target_users, message.author, "Nude courtesy of ",
-                                             "Dong courtesy of yourself??? You need some help...\n", nsfw_pics)
+                                             "Dong courtesy of yourself??? You need some help...\n", dong_pics)
             elif msg == "ome.dong":
-                await message.channel.send(content=nsfw_pics.pop())
-
-                if secret_msg:
-                    await message.delete()
+                if not dong_pics_enabled:
+                    await message.channel.send(content="Dong pics are not enabled (most likely "
+                                                       "acquiring pictures is not possible atm)")
+                    return
+                
+                await message.channel.send(content=dong_pics.pop())
 
             if type(message.channel) == discord.TextChannel and not secret_msg:
                 if message.author.id not in freq_users:
@@ -262,6 +284,9 @@ async def on_message(message):
         elif not message.channel.is_nsfw():
             await message.channel.send(content="This commands needs to be run from NSFW channel")
             return
+
+        if secret_msg:
+            await message.delete()
 
 if __name__ == "__main__":
     if discord_bot_token is not None:
