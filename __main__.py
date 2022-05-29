@@ -35,6 +35,7 @@ nsfw_pics_enabled = True
 dong_pics_enabled = True
 food_pics_enabled = True
 
+
 def get_members(message):
     target_users = []
     msg = message.content
@@ -58,7 +59,7 @@ async def send_picture_in_dm(target_users,
                              author=None,
                              msg_to_others="",
                              msg_to_self="",
-                             picture="",
+                             picture=None,
                              is_secret=False,
                              secret_msg=""):
     for target_user in target_users:
@@ -174,15 +175,16 @@ async def on_message(message):
 
             await message.channel.send(embed=cmd_embed)
         elif msg == "ome.clean":
-            async for cur_msg in message.channel.history(limit=None):
-                if cur_msg.author == client.user \
-                        or cur_msg.content.startswith("ome.") \
-                        or cur_msg.content == "ome":
-                    if type(message.channel) == discord.DMChannel:
-                        if cur_msg.author == client.user:
-                            await cur_msg.delete()
-                    else:
+            all_msg = await message.channel.history(limit=None)
+            filtered_msg = [i for i in all_msg if i.author == client.user
+                            or i.content.startswith("ome.")
+                            or i.content == "ome"]
+            for cur_msg in filtered_msg:
+                if type(message.channel) == discord.DMChannel:
+                    if cur_msg.author == client.user:
                         await cur_msg.delete()
+                else:
+                    await cur_msg.delete()
         elif msg.startswith("ome.sendfood"):
             if not food_pics_enabled:
                 await message.channel.send(content="Food pics are not enabled (most likely "
@@ -287,6 +289,7 @@ async def on_message(message):
 
         if secret_msg:
             await message.delete()
+
 
 if __name__ == "__main__":
     if discord_bot_token is not None:
