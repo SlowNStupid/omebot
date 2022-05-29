@@ -175,7 +175,7 @@ async def on_message(message):
 
             await message.channel.send(embed=cmd_embed)
         elif msg == "ome.clean":
-            all_msg = await message.channel.history(limit=None)
+            all_msg = await message.channel.history(limit=None).flatten()
             filtered_msg = [i for i in all_msg if i.author == client.user
                             or i.content.startswith("ome.")
                             or i.content == "ome"]
