@@ -174,7 +174,7 @@ async def on_message(message):
 
             await message.channel.send(embed=cmd_embed)
         elif msg == "ome.clean":
-            async for cur_msg in message.channel.history(limit=500):
+            async for cur_msg in message.channel.history(limit=None):
                 if cur_msg.author == client.user \
                         or cur_msg.content.startswith("ome.") \
                         or cur_msg.content == "ome":
@@ -255,7 +255,7 @@ async def on_message(message):
                     await message.channel.send(content="Dong pics are not enabled (most likely "
                                                        "acquiring pictures is not possible atm)")
                     return
-                
+
                 await message.channel.send(content=dong_pics.pop())
 
             if type(message.channel) == discord.TextChannel and not secret_msg:
