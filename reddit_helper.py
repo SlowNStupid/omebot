@@ -34,6 +34,10 @@ class RedditScraper:
         nsfw_sub = (await self.reddit.subreddit("ladybonersgw")).hot(limit=500)
         return await get_pictures_from_subreddit(nsfw_sub)
 
+    async def get_beaver_pics(self):
+        nsfw_sub = (await self.reddit.subreddit("pussy")).hot(limit=500)
+        return await get_pictures_from_subreddit(nsfw_sub)
+
     async def get_food_pics(self):
         food_porn_sub = (await self.reddit.subreddit("FoodPorn")).hot(limit=250)
         return await get_pictures_from_subreddit(food_porn_sub)

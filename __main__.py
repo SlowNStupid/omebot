@@ -27,12 +27,15 @@ intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 
 freq_users = {}
+
 nsfw_pics = []
 dong_pics = []
+beaver_pics = []
 food_pics = []
 
 nsfw_pics_enabled = True
 dong_pics_enabled = True
+beaver_pics_enabled = True
 food_pics_enabled = True
 
 
@@ -115,6 +118,18 @@ async def on_message(message):
             dong_pics_enabled = False
             del dong_pics[:]
 
+        global beaver_pics
+        global beaver_pics_enabled
+
+        try:
+            if len(beaver_pics) < 1:
+                beaver_pics = await reddit_scraper.get_beaver_pics()
+                random.shuffle(beaver_pics)
+                beaver_pics_enabled = True
+        except asyncprawcore.exceptions.Forbidden:
+            beaver_pics_enabled = False
+            del beaver_pics[:]
+
         msg = message.content
         match = re.search("\\s(?:<@[!&]*.+>\\s)*(secret)", msg.lower())
         if match:
@@ -169,6 +184,20 @@ async def on_message(message):
                                 inline=True)
             cmd_embed.add_field(name="ome.senddong <mention> *secret*",
                                 value="Request bot to send a dong picture to yourself or to other "
+                                      "(mention a person or role after the command), "
+                                      "optionally include \"secret\" to send anonymously",
+                                inline=True)
+
+            cmd_embed.add_field(name="--------------------------------------------------------------------------------",
+                                value="------------------------------------------------------------------------------",
+                                inline=False)
+
+            cmd_embed.add_field(name="ome.beaver *secret*",
+                                value="Request bot to post a beaver picture to the channel, "
+                                      "optionally include \"secret\" to request anonymously",
+                                inline=True)
+            cmd_embed.add_field(name="ome.sendbeaver <mention> *secret*",
+                                value="Request bot to send a beaver picture to yourself or to other "
                                       "(mention a person or role after the command), "
                                       "optionally include \"secret\" to send anonymously",
                                 inline=True)
@@ -259,6 +288,30 @@ async def on_message(message):
                     return
 
                 await message.channel.send(content=dong_pics.pop())
+            elif msg.startswith("ome.sendbeaver"):
+                if not dong_pics_enabled:
+                    await message.channel.send(content="Beaver pics are not enabled (most likely "
+                                                       "acquiring pictures is not possible atm)")
+                    return
+
+                target_users = []
+                if msg == "ome.sendbeaver":
+                    target_users.append(message.author)
+                else:
+                    target_users = get_members(message)
+                if secret_msg:
+                    await send_picture_in_dm(target_users, picture=beaver_pics, is_secret=True,
+                                             secret_msg="Beaver courtesy of your secret admirer =P\n")
+                else:
+                    await send_picture_in_dm(target_users, message.author, "Nude courtesy of ",
+                                             "Beaver courtesy of yourself??? You need some help...\n", beaver_pics)
+            elif msg == "ome.beaver":
+                if not beaver_pics_enabled:
+                    await message.channel.send(content="Beaver pics are not enabled (most likely "
+                                                       "acquiring pictures is not possible atm)")
+                    return
+
+                await message.channel.send(content=beaver_pics.pop())
 
             if type(message.channel) == discord.TextChannel and not secret_msg:
                 if message.author.id not in freq_users:
