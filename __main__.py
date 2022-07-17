@@ -221,6 +221,25 @@ async def on_message(message):
                                 inline=True)
 
             await message.channel.send(embed=cmd_embed)
+        elif msg == "ome.nuke":
+            if type(message.channel) != discord.TextChannel:
+                await message.channel.send(content="Cannot nuke private conversations")
+                return
+            if not message.channel.permissions_for(message.author).administrator:
+                await message.channel.send(content="You do not have permission to nuke this channel")
+                return
+            if not message.channel.permissions_for(message.guild.me).manage_messages:
+                await message.channel.send(content="I do not have permission to nuke this channel")
+                return
+
+            all_msg = await message.channel.history(limit=None).flatten()
+
+            nuking_msg = await message.channel.send(content="Nuking the channel....")
+
+            for cur_msg in all_msg:
+                await cur_msg.delete()
+
+            await nuking_msg.edit(content="Channel nuked!!!!", suppress=True, delete_after=4)
         elif msg == "ome.clean":
             all_msg = await message.channel.history(limit=None).flatten()
             filtered_msg = [i for i in all_msg if i.author == client.user
