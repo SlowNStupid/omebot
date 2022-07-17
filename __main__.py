@@ -63,16 +63,18 @@ async def send_picture_in_dm(target_users,
                              msg_to_others="",
                              msg_to_self="",
                              picture=None,
+                             repeat_times=1,
                              is_secret=False,
                              secret_msg=""):
     for target_user in target_users:
         dm_channel = await target_user.create_dm()
-        if target_user == author:
-            await dm_channel.send(content=msg_to_self + picture.pop())
-        elif is_secret:
-            await dm_channel.send(content=secret_msg + picture.pop())
-        else:
-            await dm_channel.send(content=msg_to_others + author.display_name + "\n" + picture.pop())
+        for x in range(repeat_times):
+            if target_user == author:
+                await dm_channel.send(content=msg_to_self + picture.pop())
+            elif is_secret:
+                await dm_channel.send(content=secret_msg + picture.pop())
+            else:
+                await dm_channel.send(content=msg_to_others + author.display_name + "\n" + picture.pop())
 
 
 @client.event
@@ -82,6 +84,9 @@ async def on_message(message):
 
     if message.content.startswith("ome"):
         secret_msg = False
+        number_msg = False
+
+        send_times = 1
 
         global food_pics
         global food_pics_enabled
@@ -131,10 +136,17 @@ async def on_message(message):
             del beaver_pics[:]
 
         msg = message.content
-        match = re.search("\\s(?:<@[!&]*.+>\\s)*(secret)", msg.lower())
-        if match:
+
+        secretMatch = re.search("\\s(?:<@[!&]*.+>\\s)*(secret)", msg.lower())
+        numberMatch = re.search("\\s([0-9])+\\s*", msg.lower())
+
+        if secretMatch:
             secret_msg = True
-            msg = msg.replace(match.group(1), "").strip()
+            msg = msg.replace(secretMatch.group(1), "").strip()
+
+        if numberMatch:
+            number_msg = True
+            msg = msg.replace(numberMatch.group(1), "").strip()
 
         if msg == "ome":
             await message.channel.send("Olen Omena!")
@@ -227,11 +239,12 @@ async def on_message(message):
                 target_users = get_members(message)
 
             if secret_msg:
-                await send_picture_in_dm(target_users, picture=food_pics, is_secret=True,
-                                         secret_msg="Food courtesy of your secret admirer =P\n")
+                await send_picture_in_dm(target_users, picture=food_pics, repeat_times=numberMatch.group(1),
+                                         is_secret=True, secret_msg="Food courtesy of your secret admirer =P\n")
             else:
                 await send_picture_in_dm(target_users, message.author, "Food courtesy of ",
-                                         "Food courtesy of yourself??? Get a job, you lazy ass...\n", food_pics)
+                                         "Food courtesy of yourself??? Get a job, you lazy ass...\n", food_pics,
+                                         repeat_times=numberMatch.group(1))
         elif msg == "ome.food":
             if not food_pics_enabled:
                 await message.channel.send(content="Food pics are not enabled (most likely "
@@ -252,11 +265,12 @@ async def on_message(message):
                 else:
                     target_users = get_members(message)
                 if secret_msg:
-                    await send_picture_in_dm(target_users, picture=nsfw_pics, is_secret=True,
-                                             secret_msg="Nude courtesy of your secret admirer =P\n")
+                    await send_picture_in_dm(target_users, picture=nsfw_pics, repeat_times=numberMatch.group(1),
+                                             is_secret=True, secret_msg="Nude courtesy of your secret admirer =P\n")
                 else:
                     await send_picture_in_dm(target_users, message.author, "Nude courtesy of ",
-                                             "Nude courtesy of yourself??? You need some help...\n", nsfw_pics)
+                                             "Nude courtesy of yourself??? You need some help...\n", nsfw_pics,
+                                             repeat_times=numberMatch.group(1))
             elif msg == "ome.nsfw":
                 if not nsfw_pics_enabled:
                     await message.channel.send(content="NSFW pics are not enabled (most likely "
@@ -276,11 +290,12 @@ async def on_message(message):
                 else:
                     target_users = get_members(message)
                 if secret_msg:
-                    await send_picture_in_dm(target_users, picture=dong_pics, is_secret=True,
-                                             secret_msg="Dong courtesy of your secret admirer =P\n")
+                    await send_picture_in_dm(target_users, picture=dong_pics, repeat_times=numberMatch.group(1),
+                                             is_secret=True, secret_msg="Dong courtesy of your secret admirer =P\n")
                 else:
                     await send_picture_in_dm(target_users, message.author, "Nude courtesy of ",
-                                             "Dong courtesy of yourself??? You need some help...\n", dong_pics)
+                                             "Dong courtesy of yourself??? You need some help...\n", dong_pics,
+                                             repeat_times=numberMatch.group(1))
             elif msg == "ome.dong":
                 if not dong_pics_enabled:
                     await message.channel.send(content="Dong pics are not enabled (most likely "
@@ -300,11 +315,12 @@ async def on_message(message):
                 else:
                     target_users = get_members(message)
                 if secret_msg:
-                    await send_picture_in_dm(target_users, picture=beaver_pics, is_secret=True,
-                                             secret_msg="Beaver courtesy of your secret admirer =P\n")
+                    await send_picture_in_dm(target_users, picture=beaver_pics, repeat_times=numberMatch.group(1),
+                                             is_secret=True, secret_msg="Beaver courtesy of your secret admirer =P\n")
                 else:
                     await send_picture_in_dm(target_users, message.author, "Nude courtesy of ",
-                                             "Beaver courtesy of yourself??? You need some help...\n", beaver_pics)
+                                             "Beaver courtesy of yourself??? You need some help...\n", beaver_pics,
+                                             repeat_times=numberMatch.group(1))
             elif msg == "ome.beaver":
                 if not beaver_pics_enabled:
                     await message.channel.send(content="Beaver pics are not enabled (most likely "
