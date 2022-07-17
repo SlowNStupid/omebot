@@ -149,7 +149,7 @@ async def on_message(message):
             msg = msg.replace(numberMatch.group(0), "").strip()
 
             if int(numberMatch.group(0)) <= 44:
-                send_times = numberMatch.group(0)
+                send_times = int(numberMatch.group(0))
             else:
                 send_times = 44
 
@@ -256,7 +256,8 @@ async def on_message(message):
                                                    "acquiring pictures is not possible atm)")
                 return
 
-            await message.channel.send(content=food_pics.pop())
+            for x in range(send_times):
+                await message.channel.send(content=food_pics.pop())
         elif message.channel.is_nsfw():
             if msg.startswith("ome.sendnude"):
                 if not nsfw_pics_enabled:
@@ -282,7 +283,8 @@ async def on_message(message):
                                                        "acquiring pictures is not possible atm)")
                     return
 
-                await message.channel.send(content=nsfw_pics.pop())
+                for x in range(send_times):
+                    await message.channel.send(content=nsfw_pics.pop())
             elif msg.startswith("ome.senddong"):
                 if not dong_pics_enabled:
                     await message.channel.send(content="Dong pics are not enabled (most likely "
@@ -307,7 +309,8 @@ async def on_message(message):
                                                        "acquiring pictures is not possible atm)")
                     return
 
-                await message.channel.send(content=dong_pics.pop())
+                for x in range(send_times):
+                    await message.channel.send(content=dong_pics.pop())
             elif msg.startswith("ome.sendbeaver"):
                 if not dong_pics_enabled:
                     await message.channel.send(content="Beaver pics are not enabled (most likely "
@@ -332,7 +335,8 @@ async def on_message(message):
                                                        "acquiring pictures is not possible atm)")
                     return
 
-                await message.channel.send(content=beaver_pics.pop())
+                for x in range(send_times):
+                    await message.channel.send(content=beaver_pics.pop())
 
             if type(message.channel) == discord.TextChannel and not secret_msg:
                 if message.author.id not in freq_users:
