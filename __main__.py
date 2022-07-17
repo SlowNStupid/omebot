@@ -60,14 +60,14 @@ def get_members(message):
     return target_users
 
 
-def send_picture_in_dm(target_users,
-                       author=None,
-                       msg_to_others="",
-                       msg_to_self="",
-                       picture=None,
-                       repeat_times=1,
-                       is_secret=False,
-                       secret_msg=""):
+async def send_picture_in_dm(target_users,
+                             author=None,
+                             msg_to_others="",
+                             msg_to_self="",
+                             picture=None,
+                             repeat_times=1,
+                             is_secret=False,
+                             secret_msg=""):
     for target_user in target_users:
         dm_channel = await target_user.create_dm()
         for x in range(repeat_times):
@@ -245,12 +245,12 @@ async def on_message(message):
                 target_users = get_members(message)
 
             if secret_msg:
-                send_picture_in_dm(target_users, picture=food_pics, repeat_times=send_times,
-                                   is_secret=True, secret_msg="Food courtesy of your secret admirer =P\n")
+                await send_picture_in_dm(target_users, picture=food_pics, repeat_times=send_times,
+                                         is_secret=True, secret_msg="Food courtesy of your secret admirer =P\n")
             else:
-                send_picture_in_dm(target_users, message.author, "Food courtesy of ",
-                                   "Food courtesy of yourself??? Get a job, you lazy ass...\n", food_pics,
-                                   repeat_times=send_times)
+                await send_picture_in_dm(target_users, message.author, "Food courtesy of ",
+                                         "Food courtesy of yourself??? Get a job, you lazy ass...\n", food_pics,
+                                         repeat_times=send_times)
         elif msg == "ome.food":
             if not food_pics_enabled:
                 await message.channel.send(content="Food pics are not enabled (most likely "
@@ -272,12 +272,12 @@ async def on_message(message):
                 else:
                     target_users = get_members(message)
                 if secret_msg:
-                    send_picture_in_dm(target_users, picture=nsfw_pics, repeat_times=send_times,
-                                       is_secret=True, secret_msg="Nude courtesy of your secret admirer =P\n")
+                    await send_picture_in_dm(target_users, picture=nsfw_pics, repeat_times=send_times,
+                                             is_secret=True, secret_msg="Nude courtesy of your secret admirer =P\n")
                 else:
-                    send_picture_in_dm(target_users, message.author, "Nude courtesy of ",
-                                       "Nude courtesy of yourself??? You need some help...\n", nsfw_pics,
-                                       repeat_times=send_times)
+                    await send_picture_in_dm(target_users, message.author, "Nude courtesy of ",
+                                             "Nude courtesy of yourself??? You need some help...\n", nsfw_pics,
+                                             repeat_times=send_times)
             elif msg == "ome.nsfw":
                 if not nsfw_pics_enabled:
                     await message.channel.send(content="NSFW pics are not enabled (most likely "
@@ -298,12 +298,12 @@ async def on_message(message):
                 else:
                     target_users = get_members(message)
                 if secret_msg:
-                    send_picture_in_dm(target_users, picture=dong_pics, repeat_times=send_times,
-                                       is_secret=True, secret_msg="Dong courtesy of your secret admirer =P\n")
+                    await send_picture_in_dm(target_users, picture=dong_pics, repeat_times=send_times,
+                                             is_secret=True, secret_msg="Dong courtesy of your secret admirer =P\n")
                 else:
-                    send_picture_in_dm(target_users, message.author, "Nude courtesy of ",
-                                       "Dong courtesy of yourself??? You need some help...\n", dong_pics,
-                                       repeat_times=send_times)
+                    await send_picture_in_dm(target_users, message.author, "Nude courtesy of ",
+                                             "Dong courtesy of yourself??? You need some help...\n", dong_pics,
+                                             repeat_times=send_times)
             elif msg == "ome.dong":
                 if not dong_pics_enabled:
                     await message.channel.send(content="Dong pics are not enabled (most likely "
@@ -324,12 +324,12 @@ async def on_message(message):
                 else:
                     target_users = get_members(message)
                 if secret_msg:
-                    send_picture_in_dm(target_users, picture=beaver_pics, repeat_times=send_times,
-                                       is_secret=True, secret_msg="Beaver courtesy of your secret admirer =P\n")
+                    await send_picture_in_dm(target_users, picture=beaver_pics, repeat_times=send_times,
+                                             is_secret=True, secret_msg="Beaver courtesy of your secret admirer =P\n")
                 else:
-                    send_picture_in_dm(target_users, message.author, "Nude courtesy of ",
-                                       "Beaver courtesy of yourself??? You need some help...\n", beaver_pics,
-                                       repeat_times=send_times)
+                    await send_picture_in_dm(target_users, message.author, "Nude courtesy of ",
+                                             "Beaver courtesy of yourself??? You need some help...\n", beaver_pics,
+                                             repeat_times=send_times)
             elif msg == "ome.beaver":
                 if not beaver_pics_enabled:
                     await message.channel.send(content="Beaver pics are not enabled (most likely "
