@@ -42,9 +42,11 @@ food_pics_enabled = True
 def get_members(message):
     target_users = []
     msg = message.content
-    match = re.search("\\s<@[!&]*(.+)>", msg)
-    if msg == "ome.sendfood" or msg == "ome.sendnude" or msg == "ome.senddong":
+    if msg == "ome.sendfood" or msg == "ome.sendnude" or msg == "ome.senddong" or msg == "ome.sendbeaver":
         target_users.append(message.author)
+        return target_users
+    
+    match = re.search("\\s<@[!&]*(.+)>", msg)
     if match:
         mention_id = int(match.group(1))
         target_user = message.guild.get_member(mention_id)
@@ -135,20 +137,20 @@ async def on_message(message):
 
         msg = message.content
 
-        secretMatch = re.search("\\s(?:<@[!&]*.+>\\s)*(secret)", msg.lower())
-        numberMatch = re.search("\\s([0-9])+\\s*", msg.lower())
+        secret_match = re.search("\\s(?:<@[!&]*.+>\\s)*(secret)", msg.lower())
+        number_match = re.search("\\s(\\d)+\\s*", msg.lower())
 
-        if secretMatch:
+        if secret_match:
             secret_msg = True
-            msg = msg.replace(secretMatch.group(1), "").strip()
+            msg = msg.replace(secret_match.group(1), "").strip()
 
             await message.delete()
 
-        if numberMatch:
-            msg = msg.replace(numberMatch.group(0), "").strip()
+        if number_match:
+            msg = msg.replace(number_match.group(0), "").strip()
 
-            if int(numberMatch.group(0)) <= 44:
-                send_times = int(numberMatch.group(0))
+            if int(number_match.group(0)) <= 44:
+                send_times = int(number_match.group(0))
             else:
                 send_times = 44
 
