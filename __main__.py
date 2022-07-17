@@ -84,8 +84,6 @@ async def on_message(message):
 
     if message.content.startswith("ome"):
         secret_msg = False
-        number_msg = False
-
         send_times = 1
 
         global food_pics
@@ -144,8 +142,9 @@ async def on_message(message):
             secret_msg = True
             msg = msg.replace(secretMatch.group(1), "").strip()
 
+            await message.delete()
+
         if numberMatch:
-            number_msg = True
             msg = msg.replace(numberMatch.group(0), "").strip()
 
             if int(numberMatch.group(0)) <= 44:
@@ -364,9 +363,6 @@ async def on_message(message):
         elif not message.channel.is_nsfw():
             await message.channel.send(content="This commands needs to be run from NSFW channel")
             return
-
-        if secret_msg:
-            await message.delete()
 
 
 if __name__ == "__main__":
