@@ -137,14 +137,8 @@ async def on_message(message):
 
         msg = message.content
 
-        secret_match = re.search("\\s(?:<@[!&]*.+>\\s)*(secret)", msg.lower())
         number_match = re.search("\\s(\\d)+\\s*", msg.lower())
-
-        if secret_match:
-            secret_msg = True
-            msg = msg.replace(secret_match.group(1), "").strip()
-
-            await message.delete()
+        secret_match = re.search("\\s(?:<@[!&]*.+>\\s)*(secret)", msg.lower())
 
         if number_match:
             msg = msg.replace(number_match.group(0), "").strip()
@@ -153,6 +147,12 @@ async def on_message(message):
                 send_times = int(number_match.group(0))
             else:
                 send_times = 44
+
+        if secret_match:
+            secret_msg = True
+            msg = msg.replace(secret_match.group(1), "").strip()
+
+            await message.delete()
 
         if msg == "ome":
             await message.channel.send("Olen Omena!")
@@ -304,6 +304,7 @@ async def on_message(message):
                     return
 
                 for x in range(send_times):
+                    print("Loop: " + str(x))
                     await message.channel.send(content=nsfw_pics.pop())
             elif msg.startswith("ome.senddong"):
                 if not dong_pics_enabled:
