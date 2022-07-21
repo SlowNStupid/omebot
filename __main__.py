@@ -28,15 +28,67 @@ client = discord.Client(intents=intents)
 
 freq_users = {}
 
+food_pics = []
 nsfw_pics = []
 dong_pics = []
 beaver_pics = []
-food_pics = []
 
+food_pics_enabled = True
 nsfw_pics_enabled = True
 dong_pics_enabled = True
 beaver_pics_enabled = True
-food_pics_enabled = True
+
+
+def get_food_pics():
+    global food_pics
+    global food_pics_enabled
+
+    try:
+        food_pics = await reddit_scraper.get_food_pics()
+        random.shuffle(food_pics)
+        food_pics_enabled = True
+    except asyncprawcore.exceptions.Forbidden:
+        food_pics_enabled = False
+        del food_pics[:]
+
+
+def get_nsfw_pics():
+    global nsfw_pics
+    global nsfw_pics_enabled
+
+    try:
+        nsfw_pics = await reddit_scraper.get_nsfw_pics()
+        random.shuffle(nsfw_pics)
+        nsfw_pics_enabled = True
+    except asyncprawcore.exceptions.Forbidden:
+        nsfw_pics_enabled = False
+        del nsfw_pics[:]
+
+
+def get_dong_pics():
+    global dong_pics
+    global dong_pics_enabled
+
+    try:
+        dong_pics = await reddit_scraper.get_dong_pics()
+        random.shuffle(dong_pics)
+        dong_pics_enabled = True
+    except asyncprawcore.exceptions.Forbidden:
+        dong_pics_enabled = False
+        del dong_pics[:]
+
+
+def get_beaver_pics():
+    global beaver_pics
+    global beaver_pics_enabled
+
+    try:
+        beaver_pics = await reddit_scraper.get_beaver_pics()
+        random.shuffle(beaver_pics)
+        beaver_pics_enabled = True
+    except asyncprawcore.exceptions.Forbidden:
+        beaver_pics_enabled = False
+        del beaver_pics[:]
 
 
 def get_members(message):
@@ -85,52 +137,22 @@ async def on_message(message):
         return
 
     if message.content.startswith("ome"):
-        secret_msg = False
-        send_times = 1
-
         global food_pics
         global food_pics_enabled
-        try:
-            if len(food_pics) < 1:
-                food_pics = await reddit_scraper.get_food_pics()
-                random.shuffle(food_pics)
-                food_pics_enabled = True
-        except asyncprawcore.exceptions.Forbidden:
-            food_pics_enabled = False
-            del food_pics[:]
 
         global nsfw_pics
         global nsfw_pics_enabled
-        try:
-            if len(nsfw_pics) < 1:
-                nsfw_pics = await reddit_scraper.get_nsfw_pics()
-                random.shuffle(nsfw_pics)
-                nsfw_pics_enabled = True
-        except asyncprawcore.exceptions.Forbidden:
-            nsfw_pics_enabled = False
-            del nsfw_pics[:]
 
         global dong_pics
         global dong_pics_enabled
-        try:
-            if len(dong_pics) < 1:
-                dong_pics = await reddit_scraper.get_dong_pics()
-                random.shuffle(dong_pics)
-                dong_pics_enabled = True
-        except asyncprawcore.exceptions.Forbidden:
-            dong_pics_enabled = False
-            del dong_pics[:]
 
         global beaver_pics
         global beaver_pics_enabled
-        try:
-            if len(beaver_pics) < 1:
-                beaver_pics = await reddit_scraper.get_beaver_pics()
-                random.shuffle(beaver_pics)
-                beaver_pics_enabled = True
-        except asyncprawcore.exceptions.Forbidden:
-            beaver_pics_enabled = False
-            del beaver_pics[:]
+
+        global freq_users
+
+        secret_msg = False
+        send_times = 1
 
         msg = message.content
 
@@ -249,6 +271,9 @@ async def on_message(message):
                 else:
                     await cur_msg.delete()
         elif msg.startswith("ome.sendfood"):
+            if len(food_pics) < send_times:
+                get_food_pics()
+
             if not food_pics_enabled:
                 await message.channel.send(content="Food pics are not enabled (most likely "
                                                    "acquiring pictures is not possible atm)")
@@ -268,6 +293,9 @@ async def on_message(message):
                                          "Food courtesy of yourself??? Get a job, you lazy ass...\n", food_pics,
                                          repeat_times=send_times)
         elif msg == "ome.food":
+            if len(food_pics) < send_times:
+                get_food_pics()
+
             if not food_pics_enabled:
                 await message.channel.send(content="Food pics are not enabled (most likely "
                                                    "acquiring pictures is not possible atm)")
@@ -277,6 +305,9 @@ async def on_message(message):
                 await message.channel.send(content=food_pics.pop())
         elif message.channel.is_nsfw():
             if msg.startswith("ome.sendnude"):
+                if len(nsfw_pics) < send_times:
+                    get_nsfw_pics()
+
                 if not nsfw_pics_enabled:
                     await message.channel.send(content="Nude pics are not enabled (most likely "
                                                        "acquiring pictures is not possible atm)")
@@ -295,6 +326,9 @@ async def on_message(message):
                                              "Nude courtesy of yourself??? You need some help...\n", nsfw_pics,
                                              repeat_times=send_times)
             elif msg == "ome.nsfw":
+                if len(nsfw_pics) < send_times:
+                    get_nsfw_pics()
+
                 if not nsfw_pics_enabled:
                     await message.channel.send(content="NSFW pics are not enabled (most likely "
                                                        "acquiring pictures is not possible atm)")
@@ -303,6 +337,9 @@ async def on_message(message):
                 for x in range(send_times):
                     await message.channel.send(content=nsfw_pics.pop())
             elif msg.startswith("ome.senddong"):
+                if len(dong_pics) < send_times:
+                    get_dong_pics()
+
                 if not dong_pics_enabled:
                     await message.channel.send(content="Dong pics are not enabled (most likely "
                                                        "acquiring pictures is not possible atm)")
@@ -321,6 +358,9 @@ async def on_message(message):
                                              "Dong courtesy of yourself??? You need some help...\n", dong_pics,
                                              repeat_times=send_times)
             elif msg == "ome.dong":
+                if len(dong_pics) < send_times:
+                    get_dong_pics()
+
                 if not dong_pics_enabled:
                     await message.channel.send(content="Dong pics are not enabled (most likely "
                                                        "acquiring pictures is not possible atm)")
@@ -329,6 +369,9 @@ async def on_message(message):
                 for x in range(send_times):
                     await message.channel.send(content=dong_pics.pop())
             elif msg.startswith("ome.sendbeaver"):
+                if len(beaver_pics) < send_times:
+                    get_beaver_pics()
+
                 if not dong_pics_enabled:
                     await message.channel.send(content="Beaver pics are not enabled (most likely "
                                                        "acquiring pictures is not possible atm)")
@@ -347,6 +390,9 @@ async def on_message(message):
                                              "Beaver courtesy of yourself??? You need some help...\n", beaver_pics,
                                              repeat_times=send_times)
             elif msg == "ome.beaver":
+                if len(beaver_pics) < send_times:
+                    get_beaver_pics()
+
                 if not beaver_pics_enabled:
                     await message.channel.send(content="Beaver pics are not enabled (most likely "
                                                        "acquiring pictures is not possible atm)")
@@ -355,7 +401,6 @@ async def on_message(message):
                 for x in range(send_times):
                     await message.channel.send(content=beaver_pics.pop())
 
-            global freq_users
             if type(message.channel) == discord.TextChannel and not secret_msg:
                 if message.author.id not in freq_users:
                     freq_users[message.author.id] = 1
@@ -380,8 +425,11 @@ async def on_message(message):
                         await message.channel.send(
                             content=message.author.mention + ", I see you're a pervert ;)")
         elif not message.channel.is_nsfw():
-            await message.channel.send(content="This commands needs to be run from NSFW channel")
-            return
+            if msg.startswith("ome.sendnude") or msg.startswith("ome.nsfw") \
+                    or msg.startswith("ome.senddong") or msg.startswith("ome.dong") \
+                    or msg.startswith("ome.sendbeaver") or msg.startswith("ome.beaver"):
+                await message.channel.send(content="This commands needs to be run from NSFW channel")
+                return
 
 
 if __name__ == "__main__":
