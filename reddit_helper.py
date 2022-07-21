@@ -27,7 +27,7 @@ class RedditScraper:
                                        password=reddit_password)
 
     async def get_nsfw_pics(self):
-        nsfw_sub = (await self.reddit.subreddit("NSFW_GIF")).hot(limit=500)
+        nsfw_sub = (await self.reddit.subreddit("NSFW_GIF+porn_gifs+BestPornInGalaxy")).hot(limit=500)
         return await get_pictures_from_subreddit(nsfw_sub)
 
     async def get_dong_pics(self):

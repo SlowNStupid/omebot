@@ -101,7 +101,6 @@ async def on_message(message):
 
         global nsfw_pics
         global nsfw_pics_enabled
-
         try:
             if len(nsfw_pics) < 1:
                 nsfw_pics = await reddit_scraper.get_nsfw_pics()
@@ -113,7 +112,6 @@ async def on_message(message):
 
         global dong_pics
         global dong_pics_enabled
-
         try:
             if len(dong_pics) < 1:
                 dong_pics = await reddit_scraper.get_dong_pics()
@@ -125,7 +123,6 @@ async def on_message(message):
 
         global beaver_pics
         global beaver_pics_enabled
-
         try:
             if len(beaver_pics) < 1:
                 beaver_pics = await reddit_scraper.get_beaver_pics()
@@ -304,7 +301,6 @@ async def on_message(message):
                     return
 
                 for x in range(send_times):
-                    print("Loop: " + str(x))
                     await message.channel.send(content=nsfw_pics.pop())
             elif msg.startswith("ome.senddong"):
                 if not dong_pics_enabled:
@@ -359,6 +355,7 @@ async def on_message(message):
                 for x in range(send_times):
                     await message.channel.send(content=beaver_pics.pop())
 
+            global freq_users
             if type(message.channel) == discord.TextChannel and not secret_msg:
                 if message.author.id not in freq_users:
                     freq_users[message.author.id] = 1
