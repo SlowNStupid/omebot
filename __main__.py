@@ -39,7 +39,7 @@ dong_pics_enabled = True
 beaver_pics_enabled = True
 
 
-def get_food_pics():
+async def get_food_pics():
     global food_pics
     global food_pics_enabled
 
@@ -52,7 +52,7 @@ def get_food_pics():
         del food_pics[:]
 
 
-def get_nsfw_pics():
+async def get_nsfw_pics():
     global nsfw_pics
     global nsfw_pics_enabled
 
@@ -65,7 +65,7 @@ def get_nsfw_pics():
         del nsfw_pics[:]
 
 
-def get_dong_pics():
+async def get_dong_pics():
     global dong_pics
     global dong_pics_enabled
 
@@ -78,7 +78,7 @@ def get_dong_pics():
         del dong_pics[:]
 
 
-def get_beaver_pics():
+async def get_beaver_pics():
     global beaver_pics
     global beaver_pics_enabled
 
@@ -272,7 +272,7 @@ async def on_message(message):
                     await cur_msg.delete()
         elif msg.startswith("ome.sendfood"):
             if len(food_pics) < send_times:
-                get_food_pics()
+                await get_food_pics()
 
             if not food_pics_enabled:
                 await message.channel.send(content="Food pics are not enabled (most likely "
@@ -294,7 +294,7 @@ async def on_message(message):
                                          repeat_times=send_times)
         elif msg == "ome.food":
             if len(food_pics) < send_times:
-                get_food_pics()
+                await get_food_pics()
 
             if not food_pics_enabled:
                 await message.channel.send(content="Food pics are not enabled (most likely "
@@ -306,7 +306,7 @@ async def on_message(message):
         elif message.channel.is_nsfw():
             if msg.startswith("ome.sendnude"):
                 if len(nsfw_pics) < send_times:
-                    get_nsfw_pics()
+                    await get_nsfw_pics()
 
                 if not nsfw_pics_enabled:
                     await message.channel.send(content="Nude pics are not enabled (most likely "
@@ -327,7 +327,7 @@ async def on_message(message):
                                              repeat_times=send_times)
             elif msg == "ome.nsfw":
                 if len(nsfw_pics) < send_times:
-                    get_nsfw_pics()
+                    await get_nsfw_pics()
 
                 if not nsfw_pics_enabled:
                     await message.channel.send(content="NSFW pics are not enabled (most likely "
@@ -338,7 +338,7 @@ async def on_message(message):
                     await message.channel.send(content=nsfw_pics.pop())
             elif msg.startswith("ome.senddong"):
                 if len(dong_pics) < send_times:
-                    get_dong_pics()
+                    await get_dong_pics()
 
                 if not dong_pics_enabled:
                     await message.channel.send(content="Dong pics are not enabled (most likely "
@@ -359,7 +359,7 @@ async def on_message(message):
                                              repeat_times=send_times)
             elif msg == "ome.dong":
                 if len(dong_pics) < send_times:
-                    get_dong_pics()
+                    await get_dong_pics()
 
                 if not dong_pics_enabled:
                     await message.channel.send(content="Dong pics are not enabled (most likely "
@@ -370,7 +370,7 @@ async def on_message(message):
                     await message.channel.send(content=dong_pics.pop())
             elif msg.startswith("ome.sendbeaver"):
                 if len(beaver_pics) < send_times:
-                    get_beaver_pics()
+                    await get_beaver_pics()
 
                 if not dong_pics_enabled:
                     await message.channel.send(content="Beaver pics are not enabled (most likely "
@@ -391,7 +391,7 @@ async def on_message(message):
                                              repeat_times=send_times)
             elif msg == "ome.beaver":
                 if len(beaver_pics) < send_times:
-                    get_beaver_pics()
+                    await get_beaver_pics()
 
                 if not beaver_pics_enabled:
                     await message.channel.send(content="Beaver pics are not enabled (most likely "
