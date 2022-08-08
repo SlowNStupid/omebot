@@ -45,7 +45,7 @@ async def get_food_pics():
 
     try:
         food_pics = await reddit_scraper.get_food_pics()
-        random.shuffle(food_pics)
+        # random.shuffle(food_pics)
         food_pics_enabled = True
     except asyncprawcore.exceptions.Forbidden:
         food_pics_enabled = False
@@ -58,7 +58,7 @@ async def get_nsfw_pics():
 
     try:
         nsfw_pics = await reddit_scraper.get_nsfw_pics()
-        random.shuffle(nsfw_pics)
+        # random.shuffle(nsfw_pics)
         nsfw_pics_enabled = True
     except asyncprawcore.exceptions.Forbidden:
         nsfw_pics_enabled = False
@@ -71,7 +71,7 @@ async def get_dong_pics():
 
     try:
         dong_pics = await reddit_scraper.get_dong_pics()
-        random.shuffle(dong_pics)
+        # random.shuffle(dong_pics)
         dong_pics_enabled = True
     except asyncprawcore.exceptions.Forbidden:
         dong_pics_enabled = False
@@ -84,7 +84,7 @@ async def get_beaver_pics():
 
     try:
         beaver_pics = await reddit_scraper.get_beaver_pics()
-        random.shuffle(beaver_pics)
+        # random.shuffle(beaver_pics)
         beaver_pics_enabled = True
     except asyncprawcore.exceptions.Forbidden:
         beaver_pics_enabled = False
